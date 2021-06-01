@@ -6,6 +6,12 @@ const debounce = (func, timeout = 300) => {
   };
 }
 
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
 const draw = () => {
   const content = document.querySelector("#content");
 
@@ -67,30 +73,47 @@ const raiseElements = e => {
   const raised = document.querySelectorAll(".raise");
 
   raised.forEach(element => {
-    element.classList.remove("raise");
+    element.classList.remove("raise", "raiseTop", "raiseLeft", "raiseRight", "raiseBottom");
   });
 
   const index = parseInt(e.target.dataset.index);
+  const root = document.documentElement;
   const columnLength = document.querySelector(".row").querySelectorAll(".box").length;
   const rowLength = document.querySelectorAll(".row").length;
+  const min = -7;
+  const max = -1;
 
   if (index - columnLength > 0) {
     const top = document.querySelector(`.box[data-index="${index - columnLength}"]`);
-    top.classList.add("raise");
+    top.classList.add("raiseTop", "raise");
+    setRandomHeight(root, top, "top", min, max);
   }
   if (index % columnLength > 0) {
     const right = document.querySelector(`.box[data-index="${index + 1}"]`);
-    right.classList.add("raise");
+    right.classList.add("raiseRight", "raise");
+    setRandomHeight(root, right, "right", min, max);
   }
   if ((index - 1) % columnLength > 0) {
     const left = document.querySelector(`.box[data-index="${index - 1}"]`);
-    left.classList.add("raise");
+    left.classList.add("raiseLeft", "raise");
+    setRandomHeight(root, left, "left", min, max);
   }
   if (index + columnLength < (columnLength * rowLength)) {
     const bottom = document.querySelector(`.box[data-index="${index + columnLength}"]`);
-    bottom.classList.add("raise");
+    bottom.classList.add("raiseBottom", "raise");
+    setRandomHeight(root, bottom, "bottom", min, max);
   }
 
+}
+
+const setRandomHeight = (root, element, pos, min, max) => {
+  const random = getRandomInt(min, max);
+  root.style.setProperty(`--raise-${pos}`, random + "px");
+
+  //Set BG Color 196 - 255 (196 is base color, must be higher depending on random height)
+  const range = 255 - 196;
+  const newValue = 196 + (range - Math.floor(range / random));
+  element.style.backgroundColor = `rgb(${newValue}, ${newValue}, ${newValue})`
 }
 
 const viewChange = debounce(() => draw());
